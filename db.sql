@@ -74,3 +74,15 @@ CREATE TABLE exam_assignments (
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (exam_id) REFERENCES exams(id)
 );
+CREATE TABLE IF NOT EXISTS `exam_results` (
+    `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    `user_id` INT NOT NULL,
+    `exam_id` INT NOT NULL,
+    `correct_answers` INT NOT NULL,
+    `total_questions` INT NOT NULL,
+    `percentage` DECIMAL(5, 2) NOT NULL,
+    `status` ENUM('Passed', 'Failed') NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (`user_id`) REFERENCES `users`(`id`),
+    FOREIGN KEY (`exam_id`) REFERENCES `exams`(`id`)
+);
