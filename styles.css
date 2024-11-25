@@ -1,0 +1,154 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: #F5F5F5;
+    color: #212121;
+}
+
+.container {
+    text-align: center;
+    margin-top: 100px;
+}
+
+.welcome-message h1 {
+    font-size: 3rem;
+    color: #2E004F;
+}
+
+.auth-buttons .btn {
+    text-decoration: none;
+    padding: 15px 30px;
+    margin: 10px;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    transition: 0.3s;
+}
+
+.btn-primary {
+    background-color: #FFEB3B;
+    color: #2E004F;
+}
+
+.btn-secondary {
+    background-color: #2E004F;
+    color: #FFEB3B;
+}
+
+.btn:hover {
+    background-color: #212121;
+    color: #FFEB3B;
+}
+
+.auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.auth-form {
+    background-color: #212121;
+    padding: 30px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 400px;
+    color: white;
+}
+
+.auth-form h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 2rem;
+}
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #FFEB3B;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    color: #212121;
+    background-color: #fff;
+    transition: border-color 0.3s;
+}
+
+.input-group input:focus {
+    border-color: #2E004F;
+}
+
+button[type="submit"] {
+    background-color: #FFEB3B;
+    color: #2E004F;
+    border: none;
+    width: 100%;
+    padding: 15px;
+    font-size: 1.2rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+button[type="submit"]:hover {
+    background-color: #212121;
+    color: #FFEB3B;
+}
+
+p {
+    text-align: center;
+}
+
+a {
+    color: #FFEB3B;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #2E004F;
+}
+
+/* User Type Selection Styles */
+.input-group label {
+    display: inline-block;
+    margin-right: 15px;
+    font-size: 1.1rem;
+    color: #FFEB3B;
+}
+
+/* Institution Registration Fields */
+#institution-fields {
+    display: none;
+    margin-top: 20px;
+}
+
+#institution-fields .input-group input {
+    border-color: #2E004F;
+}
+
+#institution-fields input[type="text"]:focus {
+    border-color: #FFEB3B;
+}
+
+/* Student Registration Fields */
+#student-fields .input-group input {
+    border-color: #FFEB3B;
+}
+
+#student-fields input[type="text"]:focus {
+    border-color: #2E004F;
+}
+
+/* Error Message Styling */
+.error-message {
+    color: red;
+    font-size: 1rem;
+    margin-top: 10px;
+}
