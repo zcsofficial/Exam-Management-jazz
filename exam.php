@@ -22,24 +22,19 @@ $stmt = $pdo->prepare("SELECT exams.* FROM exams
 $stmt->execute([$user_id]);
 $exams = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Check if the user has already attended an exam
-$attended_exams = [];
-$stmt = $pdo->prepare("SELECT exam_id FROM exam_attendance WHERE user_id = ?");
+// Check if the user has already attended an exam and check the status
+$exam_status = [];
+$stmt = $pdo->prepare("SELECT exam_id, attended_at FROM exam_attendance WHERE user_id = ?");
 $stmt->execute([$user_id]);
-$attended_exams_result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-foreach ($attended_exams_result as $attended_exam) {
-    $attended_exams[] = $attended_exam['exam_id'];
+$attendance_result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+foreach ($attendance_result as $attendance) {
+    $exam_status[$attendance['exam_id']] = $attendance['attended_at'];
 }
 
 // Handle exam start
 if (isset($_GET['exam_id'])) {
     $exam_id = $_GET['exam_id'];
-
-    // Check if the user has already attended the exam
-    if (in_array($exam_id, $attended_exams)) {
-        echo "You have already attended this exam.";
-        exit();
-    }
 
     // Fetch exam details
     $stmt = $pdo->prepare("SELECT * FROM exams WHERE id = ?");
@@ -57,9 +52,16 @@ if (isset($_GET['exam_id'])) {
         $_SESSION['questions'] = $questions;
         $_SESSION['current_question'] = 0;
 
-        // Insert a record into exam_attendance to mark this exam as attended
-        $stmt = $pdo->prepare("INSERT INTO exam_attendance (user_id, exam_id, attended_at) VALUES (?, ?, NOW())");
-        $stmt->execute([$user_id, $exam_id]);
+        // Insert or update attendance record
+        if (isset($exam_status[$exam_id]) && $exam_status[$exam_id] !== NULL) {
+            // Update attendance with current timestamp if the exam is resumed
+            $stmt = $pdo->prepare("UPDATE exam_attendance SET attended_at = CURRENT_TIMESTAMP WHERE user_id = ? AND exam_id = ?");
+            $stmt->execute([$user_id, $exam_id]);
+        } else {
+            // Insert new record if exam not attended before
+            $stmt = $pdo->prepare("INSERT INTO exam_attendance (user_id, exam_id, attended_at) VALUES (?, ?, CURRENT_TIMESTAMP)");
+            $stmt->execute([$user_id, $exam_id]);
+        }
 
         header('Location: take_exam.php'); // Redirect to the exam page where the student can start the exam
         exit();
@@ -217,13 +219,17 @@ if (isset($_GET['exam_id'])) {
                 <div class="exam-card">
                     <h3><?= $exam['exam_name'] ?></h3>
                     <p>Exam Date: <?= $exam['exam_date'] ?></p>
-                    <?php if (in_array($exam['id'], $attended_exams)): ?>
+                    <?php if (isset($exam_status[$exam['id']]) && $exam_status[$exam['id']] !== NULL): ?>
                         <button class="attended" disabled>
-                            <i class="fas fa-check-circle"></i> Already Attended
+                            <i class="fas fa-check-circle"></i> Completed
+                        </button>
+                    <?php elseif (isset($exam_status[$exam['id']]) && $exam_status[$exam['id']] === NULL): ?>
+                        <button onclick="window.location.href='exam.php?exam_id=<?= $exam['id'] ?>'">
+                            <i class="fas fa-play-circle"></i> Start Exam
                         </button>
                     <?php else: ?>
                         <button onclick="window.location.href='exam.php?exam_id=<?= $exam['id'] ?>'">
-                            <i class="fas fa-play-circle"></i> Start Exam
+                            <i class="fas fa-pause-circle"></i> Resume Exam
                         </button>
                     <?php endif; ?>
                 </div>
@@ -238,9 +244,6 @@ if (isset($_GET['exam_id'])) {
         <p>&copy; 2024 Exam Management System. All Rights Reserved.</p>
     </div>
 
-    <!-- Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

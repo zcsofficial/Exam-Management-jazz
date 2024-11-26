@@ -247,9 +247,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['assign_exam'])) {
     <div class="navbar">
         <div class="logo">Exam Management System</div>
         <div class="nav-links">
-            <a href="index.php">Home</a>
+            <a href="admin.php">Home</a>
             <a href="admin.php">Manage Exams</a>
             <a href="dashboard.php">Dashboard</a>
+            <a href="results.php">Results</a>
             <a href="logout.php">Logout</a>
         </div>
     </div>

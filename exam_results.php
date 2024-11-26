@@ -62,6 +62,28 @@ unset($_SESSION['answers']);
             background-color: #F5F5F5;
             color: #212121;
             font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background-color: #2E004F;
+            padding: 10px 20px;
+            text-align: center;
+            color: #FFEB3B;
+            font-size: 20px;
+        }
+
+        .navbar a {
+            color: #FFEB3B;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 18px;
+        }
+
+        .navbar a:hover {
+            text-decoration: underline;
         }
 
         .result-container {
@@ -71,6 +93,7 @@ unset($_SESSION['answers']);
             background-color: #fff;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            flex: 1;
         }
 
         h2 {
@@ -123,13 +146,26 @@ unset($_SESSION['answers']);
             color: #FFEB3B;
             text-align: center;
             padding: 10px 0;
-            margin-top: 40px;
             font-size: 14px;
+        }
+
+        /* Footer fixed at the bottom */
+        .footer {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
         }
     </style>
 </head>
 
 <body>
+
+    <div class="navbar">
+        <a href="dashboard.php">Dashboard</a>
+        <a href="exam_list.php">Exams</a>
+        <a href="profile.php">Profile</a>
+        <a href="logout.php">Logout</a>
+    </div>
 
     <div class="result-container">
         <h2>Exam Results</h2>
