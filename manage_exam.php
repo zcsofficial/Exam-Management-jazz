@@ -31,14 +31,21 @@ $exams = $stmt->fetchAll(PDO::FETCH_ASSOC);
 // Handle exam update
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_exam'])) {
     $exam_id = $_POST['exam_id'];
-    $exam_name = $_POST['exam_name'];
+    $exam_name = htmlspecialchars($_POST['exam_name']); // Sanitize input
     $exam_date = $_POST['exam_date'];
 
-    $stmt = $pdo->prepare("UPDATE exams SET exam_name = ?, exam_date = ? WHERE id = ?");
-    $stmt->execute([$exam_name, $exam_date, $exam_id]);
+    try {
+        $stmt = $pdo->prepare("UPDATE exams SET exam_name = ?, exam_date = ? WHERE id = ?");
+        $stmt->execute([$exam_name, $exam_date, $exam_id]);
 
-    header('Location: manage_exam.php'); // Redirect back to the same page to avoid re-posting data
-    exit();
+        // Success message
+        echo "<script>alert('Exam updated successfully');</script>";
+        header('Location: manage_exam.php');
+        exit();
+    } catch (Exception $e) {
+        // Error message
+        echo "<script>alert('Error updating exam: " . $e->getMessage() . "');</script>";
+    }
 }
 ?>
 
@@ -196,9 +203,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update_exam'])) {
         <div class="card-container">
             <?php foreach ($exams as $exam) : ?>
                 <div class="exam-card">
-                    <h3><?= $exam['exam_name'] ?></h3>
-                    <p><?= $exam['exam_date'] ?></p>
-                    <button class="edit-button" onclick="editExam(<?= $exam['id'] ?>, '<?= $exam['exam_name'] ?>', '<?= $exam['exam_date'] ?>')">Edit</button>
+                    <h3><?= htmlspecialchars($exam['exam_name']) ?></h3>
+                    <p><?= htmlspecialchars($exam['exam_date']) ?></p>
+                    <button class="edit-button" onclick="editExam(<?= $exam['id'] ?>, '<?= htmlspecialchars($exam['exam_name']) ?>', '<?= htmlspecialchars($exam['exam_date']) ?>')">Edit</button>
                 </div>
             <?php endforeach; ?>
         </div>

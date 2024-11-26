@@ -80,7 +80,7 @@ if (isset($_GET['exam_id'])) {
     <title>Available Exams - Student Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css" rel="stylesheet">
     <style>
         /* Global Styles */
         * {
@@ -218,9 +218,13 @@ if (isset($_GET['exam_id'])) {
                     <h3><?= $exam['exam_name'] ?></h3>
                     <p>Exam Date: <?= $exam['exam_date'] ?></p>
                     <?php if (in_array($exam['id'], $attended_exams)): ?>
-                        <button class="attended" disabled>Already Attended</button>
+                        <button class="attended" disabled>
+                            <i class="fas fa-check-circle"></i> Already Attended
+                        </button>
                     <?php else: ?>
-                        <button onclick="window.location.href='exam.php?exam_id=<?= $exam['id'] ?>'">Start Exam</button>
+                        <button onclick="window.location.href='exam.php?exam_id=<?= $exam['id'] ?>'">
+                            <i class="fas fa-play-circle"></i> Start Exam
+                        </button>
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>
@@ -234,6 +238,9 @@ if (isset($_GET['exam_id'])) {
         <p>&copy; 2024 Exam Management System. All Rights Reserved.</p>
     </div>
 
+    <!-- Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

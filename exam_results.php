@@ -129,7 +129,7 @@ unset($_SESSION['answers']);
         <h2>Exam Results</h2>
 
         <div class="result-summary">
-            <h3>Exam: <?= $exam['exam_name'] ?></h3>
+            <h3>Exam: <?= htmlspecialchars($exam['exam_name']) ?></h3>
             <p>Your Score: <?= $correct_answers ?> / <?= $total_questions ?> (<?= number_format($score_percentage, 2) ?>%)</p>
         </div>
 
@@ -147,9 +147,9 @@ unset($_SESSION['answers']);
                 <tbody>
                     <?php foreach ($questions as $index => $question): ?>
                         <tr>
-                            <td><?= $question['question_text'] ?></td>
-                            <td><?= isset($answers[$index]) ? $answers[$index] : 'No answer' ?></td>
-                            <td><?= $question['correct_answer'] ?></td>
+                            <td><?= htmlspecialchars($question['question_text']) ?></td>
+                            <td><?= isset($answers[$index]) ? htmlspecialchars($answers[$index]) : 'No answer' ?></td>
+                            <td><?= htmlspecialchars($question['correct_answer']) ?></td>
                             <td>
                                 <?= isset($answers[$index]) && $answers[$index] == $question['correct_answer'] ? 'Correct' : 'Incorrect' ?>
                             </td>
