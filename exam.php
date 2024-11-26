@@ -200,7 +200,7 @@ if (isset($_GET['exam_id'])) {
     <div class="navbar">
         <div class="logo">Exam Management System</div>
         <div class="nav-links">
-            <a href="index.php">Home</a>
+            <a href="dashboard.php">Home</a>
             <a href="exam.php">Available Exams</a>
             <a href="student_dashboard.php">Dashboard</a>
             <a href="logout.php">Logout</a>

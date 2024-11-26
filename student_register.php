@@ -1,6 +1,8 @@
 <?php
 require_once 'db.php';
 
+$errorMessage = '';  // Initialize an empty error message
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $institution_id = $_POST['institution_id'];
     $username = $_POST['username'];
@@ -9,45 +11,59 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $confirm_password = $_POST['confirm-password'];
     $contact_number = $_POST['contact_number'];
 
+    // Check if the passwords match
     if ($password !== $confirm_password) {
-        echo "<script>alert('Error: Passwords do not match.');</script>";
+        $errorMessage = 'Passwords do not match. Please try again.';
     } else {
-        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+        // Check if the username already exists
+        $sql = "SELECT * FROM users WHERE username = :username LIMIT 1";
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':username', $username);
+        $stmt->execute();
+        $existingUser = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        try {
-            $sql = "SELECT * FROM institutions WHERE institution_id = :institution_id LIMIT 1"; 
-            $stmt = $pdo->prepare($sql);
-            $stmt->bindParam(':institution_id', $institution_id);
-            $stmt->execute();
-            $institution = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($existingUser) {
+            $errorMessage = 'Username already exists. Please choose a different username.';
+        } else {
+            // Proceed with registration if no errors
+            $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 
-            if (!$institution) {
-                echo "<script>alert('Error: Institution not found.');</script>";
-                exit;
+            try {
+                // Check if the institution exists
+                $sql = "SELECT * FROM institutions WHERE institution_id = :institution_id LIMIT 1"; 
+                $stmt = $pdo->prepare($sql);
+                $stmt->bindParam(':institution_id', $institution_id);
+                $stmt->execute();
+                $institution = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                if (!$institution) {
+                    $errorMessage = 'Institution not found. Please provide a valid Institution ID.';
+                } else {
+                    // Insert the new user
+                    $sql = "INSERT INTO users (username, email, password, role, contact_number, institution_id) 
+                            VALUES (:username, :email, :password, 'student', :contact_number, :institution_id)";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->bindParam(':username', $username);
+                    $stmt->bindParam(':email', $email);
+                    $stmt->bindParam(':password', $hashedPassword);
+                    $stmt->bindParam(':contact_number', $contact_number);
+                    $stmt->bindParam(':institution_id', $institution_id);
+
+                    if ($stmt->execute()) {
+                        echo "<script>alert('Registration successful! Please login.');</script>";
+                        header('Location: login.php');
+                        exit();
+                    } else {
+                        $errorMessage = 'Something went wrong, please try again later.';
+                    }
+                }
+            } catch (PDOException $e) {
+                $errorMessage = 'Error: ' . $e->getMessage();
             }
-
-            $sql = "INSERT INTO users (username, email, password, role, contact_number, institution_id) 
-                    VALUES (:username, :email, :password, 'student', :contact_number, :institution_id)";
-            $stmt = $pdo->prepare($sql);
-            $stmt->bindParam(':username', $username);
-            $stmt->bindParam(':email', $email);
-            $stmt->bindParam(':password', $hashedPassword);
-            $stmt->bindParam(':contact_number', $contact_number);
-            $stmt->bindParam(':institution_id', $institution_id);
-
-            if ($stmt->execute()) {
-                echo "<script>alert('Registration successful! Please login.');</script>";
-                header('Location: login.php');
-            } else {
-                echo "<script>alert('Error: Something went wrong, please try again later.');</script>";
-            }
-        } catch (PDOException $e) {
-            echo "<script>alert('Error: " . $e->getMessage() . "');</script>";
         }
     }
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -145,12 +161,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             color: #FFEB3B;
             text-decoration: underline;
         }
+
+        .error-message {
+            color: red;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #ffeb3b;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
     </style>
 </head>
 <body>
     <div class="auth-container">
         <div class="auth-form">
             <h2>Student Registration</h2>
+            <?php if ($errorMessage): ?>
+                <div class="error-message"><?= htmlspecialchars($errorMessage); ?></div>
+            <?php endif; ?>
             <form action="student_register.php" method="POST" id="student-register-form">
                 <div class="input-group">
                     <i class="fas fa-user"></i>
@@ -177,7 +206,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <input type="text" name="contact_number" placeholder="Contact Number" required>
                 </div>
 
-                <button type="submit" class="btn btn-primary">Register</button>
+                <button type="submit">Register</button>
                 <p>Already have an account? <a href="login.php">Login</a></p>
             </form>
         </div>

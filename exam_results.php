@@ -33,6 +33,12 @@ foreach ($questions as $index => $question) {
 
 $total_questions = count($questions);
 $score_percentage = ($correct_answers / $total_questions) * 100;
+$status = ($score_percentage >= 50) ? 'Passed' : 'Failed'; // Assuming 50% is the passing threshold
+
+// Store the result in the database
+$stmt = $pdo->prepare("INSERT INTO exam_results (user_id, exam_id, correct_answers, total_questions, percentage, status) 
+                       VALUES (?, ?, ?, ?, ?, ?)");
+$stmt->execute([$user_id, $exam_id, $correct_answers, $total_questions, $score_percentage, $status]);
 
 // Clear the session data for the current exam
 unset($_SESSION['exam_id']);
@@ -131,6 +137,7 @@ unset($_SESSION['answers']);
         <div class="result-summary">
             <h3>Exam: <?= htmlspecialchars($exam['exam_name']) ?></h3>
             <p>Your Score: <?= $correct_answers ?> / <?= $total_questions ?> (<?= number_format($score_percentage, 2) ?>%)</p>
+            <p>Status: <?= $status ?></p>
         </div>
 
         <div class="result-details">

@@ -1,6 +1,8 @@
 <?php
 require_once 'db.php';
 
+$errors = [];
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $institution_name = $_POST['institution_name'];
     $institution_id = $_POST['institution_id'];
@@ -10,12 +12,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $confirm_password = $_POST['confirm-password'];
     $contact_number = $_POST['contact_number'];
 
+    // Check if passwords match
     if ($password !== $confirm_password) {
-        echo "<script>alert('Error: Passwords do not match.');</script>";
-    } else {
+        $errors[] = "Passwords do not match.";
+    }
+
+    // Check if the username already exists
+    $sql = "SELECT * FROM users WHERE username = :username LIMIT 1";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':username', $username);
+    $stmt->execute();
+    if ($stmt->fetch(PDO::FETCH_ASSOC)) {
+        $errors[] = "Username already exists.";
+    }
+
+    // If there are no errors, proceed with registration
+    if (empty($errors)) {
         $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
 
         try {
+            // Check if institution exists
             $sql = "SELECT * FROM institutions WHERE institution_id = :institution_id LIMIT 1";
             $stmt = $pdo->prepare($sql);
             $stmt->bindParam(':institution_id', $institution_id);
@@ -23,6 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $institution = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$institution) {
+                // Insert new institution if not found
                 $sql = "INSERT INTO institutions (institution_id, institution_name) 
                         VALUES (:institution_id, :institution_name)";
                 $stmt = $pdo->prepare($sql);
@@ -31,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $stmt->execute();
             }
 
+            // Insert new user (admin)
             $sql = "INSERT INTO users (username, email, password, role, contact_number, institution_id, institution_name) 
                     VALUES (:username, :email, :password, 'admin', :contact_number, :institution_id, :institution_name)";
             $stmt = $pdo->prepare($sql);
@@ -44,16 +62,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             if ($stmt->execute()) {
                 echo "<script>alert('Registration successful! Please login.');</script>";
                 header('Location: login.php');
+                exit;
             } else {
-                echo "<script>alert('Error: Something went wrong, please try again later.');</script>";
+                $errors[] = "Something went wrong, please try again later.";
             }
         } catch (PDOException $e) {
-            echo "<script>alert('Error: " . $e->getMessage() . "');</script>";
+            $errors[] = "Error: " . $e->getMessage();
         }
     }
 }
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -150,12 +168,37 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             color: #FFEB3B;
             text-decoration: underline;
         }
+
+        .error-message {
+            background-color: #f44336;
+            color: white;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .success-message {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
     <div class="auth-container">
         <div class="auth-form">
             <h2>Institution Registration</h2>
+
+            <?php if (!empty($errors)) : ?>
+                <div class="error-message">
+                    <?php foreach ($errors as $error) : ?>
+                        <p><?php echo $error; ?></p>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+
             <form action="institution_register.php" method="POST" id="institution-register-form">
                 <div class="input-group">
                     <i class="fas fa-university"></i>
